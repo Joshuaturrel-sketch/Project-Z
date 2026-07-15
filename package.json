@@ -1,0 +1,14 @@
+{
+  "name": "notion-trading-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fetch": "node scripts/fetch-notion.mjs",
+    "build": "node scripts/build.mjs",
+    "dev": "npm run fetch && npm run build",
+    "start": "python -m http.server -d public 3000"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.17"
+  }
+}
