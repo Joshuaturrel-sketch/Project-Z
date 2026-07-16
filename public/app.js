@@ -34,8 +34,9 @@ function renderKpis(summary) {
 }
 
 function renderAccountsTable(accounts) {
-  const body = document.getElementById('accounts-table');
-  body.innerHTML = '';
+  const table = document.getElementById('accounts-table');
+  if (!table) return;
+  table.innerHTML = '';
 
   for (const account of accounts) {
     const tr = document.createElement('tr');
@@ -49,11 +50,13 @@ function renderAccountsTable(accounts) {
       td.textContent = value;
       tr.append(td);
     });
-    body.append(tr);
+    table.append(tr);
   }
 }
 
 function renderEquityChart(entries) {
+  if (!window.Plotly) throw new Error('Plotly did not load');
+
   const sorted = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
   let running = 0;
   const x = [];
@@ -65,77 +68,77 @@ function renderEquityChart(entries) {
     y.push(running);
   }
 
-  Plotly.newPlot(
-    'equity-chart',
-    [
-      {
-        x,
-        y,
-        type: 'scatter',
-        mode: 'lines+markers',
-        line: { color: '#0f766e', width: 3 },
-        marker: { size: 6 }
-      }
-    ],
-    {
-      paper_bgcolor: 'transparent',
-      plot_bgcolor: 'transparent',
-      margin: { t: 10, r: 20, b: 40, l: 50 },
-      xaxis: { title: 'Date' },
-      yaxis: { title: 'Cumulative P&L' }
-    },
-    {
-      responsive: true,
-      displayModeBar: false
-    }
-  );
+  Plotly.newPlot('equity-chart', [{
+    x,
+    y,
+    type: 'scatter',
+    mode: 'lines+markers',
+    line: { color: '#0f766e', width: 3 },
+    marker: { size: 6 }
+  }], {
+    paper_bgcolor: 'transparent',
+    plot_bgcolor: 'transparent',
+    margin: { t: 10, r: 20, b: 40, l: 50 },
+    xaxis: { title: 'Date' },
+    yaxis: { title: 'Cumulative P&L' }
+  }, {
+    responsive: true,
+    displayModeBar: false
+  });
 }
 
 function renderAccountChart(accounts) {
-  Plotly.newPlot(
-    'account-chart',
-    [
-      {
-        x: accounts.map(a => a.account),
-        y: accounts.map(a => a.totalPnl),
-        type: 'bar',
-        marker: { color: '#1d4ed8' }
-      }
-    ],
-    {
-      paper_bgcolor: 'transparent',
-      plot_bgcolor: 'transparent',
-      margin: { t: 10, r: 20, b: 80, l: 50 },
-      xaxis: { automargin: true },
-      yaxis: { title: 'Total P&L' }
-    },
-    {
-      responsive: true,
-      displayModeBar: false
-    }
-  );
+  if (!window.Plotly) throw new Error('Plotly did not load');
+
+  Plotly.newPlot('account-chart', [{
+    x: accounts.map(a => a.account),
+    y: accounts.map(a => a.totalPnl),
+    type: 'bar',
+    marker: { color: '#1d4ed8' }
+  }], {
+    paper_bgcolor: 'transparent',
+    plot_bgcolor: 'transparent',
+    margin: { t: 10, r: 20, b: 80, l: 50 },
+    xaxis: { automargin: true },
+    yaxis: { title: 'Total P&L' }
+  }, {
+    responsive: true,
+    displayModeBar: false
+  });
 }
 
 async function init() {
-  const response = await fetch('/api/data');
-  const text = await response.text();
+  const status = document.getElementById('generated-at');
 
-  let data;
   try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error(`API did not return JSON: ${text.slice(0, 120)}`);
+    status.textContent = 'Fetching /api/data...';
+
+    const response = await fetch('/api/data');
+    const rawText = await response.text();
+
+    status.textContent = `API status: ${response.status}`;
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error(`API did not return JSON: ${rawText.slice(0, 160)}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Could not load Project Z data');
+    }
+
+    status.textContent = `${data.meta.projectName} live sync ${new Date(data.meta.generatedAt).toLocaleString()}`;
+
+    renderKpis(data.summary);
+    renderAccountsTable(data.accounts || []);
+    renderEquityChart(data.entries || []);
+    renderAccountChart(data.accounts || []);
+  } catch (error) {
+    status.textContent = `Error: ${error.message}`;
+    console.error(error);
   }
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Could not load Project Z data');
-  }
-
-  document.getElementById('generated-at').textContent =
-    `${data.meta.projectName} live sync ${new Date(data.meta.generatedAt).toLocaleString()}`;
-
-  renderKpis(data.summary);
-  renderAccountsTable(data.accounts);
-  renderEquityChart(data.entries);
-  renderAccountChart(data.accounts);
 }
+
+window.addEventListener('load', init);
