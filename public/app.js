@@ -118,7 +118,14 @@ function renderAccountChart(accounts) {
 
 async function init() {
   const response = await fetch('/api/data');
-  const data = await response.json();
+  const text = await response.text();
+
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(`API did not return JSON: ${text.slice(0, 120)}`);
+  }
 
   if (!response.ok) {
     throw new Error(data.message || 'Could not load Project Z data');
@@ -132,8 +139,3 @@ async function init() {
   renderEquityChart(data.entries);
   renderAccountChart(data.accounts);
 }
-
-init().catch(error => {
-  const target = document.getElementById('generated-at');
-  target.textContent = error.message;
-});
