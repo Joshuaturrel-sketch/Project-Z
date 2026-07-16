@@ -1,61 +1,49 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Z</title>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-    <link rel="stylesheet" href="./styles.css" />
-    <script defer src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-    <script defer type="module" src="./app.js"></script>
-  </head>
-  <body>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Project Z</p>
-        <h1>Project Z</h1>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Project Z</p>
+      <h1>Project Z</h1>
+    </div>
+    <div class="meta" id="generated-at">Loading live data...</div>
+  </header>
+
+  <main class="layout">
+    <section class="kpis" id="kpis"></section>
+
+    <section class="panel chart-panel">
+      <div class="panel-head">
+        <h2>Cumulative P&amp;L</h2>
+        <p>Live query from your Notion Daily Log.</p>
       </div>
-      <div class="meta" id="generated-at">Loading live data…</div>
-    </header>
+      <div id="equity-chart" class="chart"></div>
+    </section>
 
-    <main class="layout">
-      <section class="kpis" id="kpis"></section>
+    <section class="panel chart-panel">
+      <div class="panel-head">
+        <h2>P&amp;L by Account</h2>
+        <p>Grouped in the Vercel Function before delivery.</p>
+      </div>
+      <div id="account-chart" class="chart"></div>
+    </section>
 
-      <section class="panel chart-panel">
-        <div class="panel-head">
-          <h2>Cumulative P&amp;L</h2>
-          <p>Live query from your Notion Daily Log.</p>
-        </div>
-        <div id="equity-chart" class="chart"></div>
-      </section>
-
-      <section class="panel chart-panel">
-        <div class="panel-head">
-          <h2>P&amp;L by Account</h2>
-          <p>Grouped in the Vercel Function before delivery.</p>
-        </div>
-        <div id="account-chart" class="chart"></div>
-      </section>
-
-      <section class="panel table-panel">
-        <div class="panel-head">
-          <h2>Accounts</h2>
-          <p>Returned directly from the live API route.</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Account</th>
-                <th>Trades</th>
-                <th>Total P&amp;L</th>
-                <th>Average P&amp;L</th>
-              </tr>
-            </thead>
-            <tbody id="accounts-table"></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </body>
-</html>
+    <section class="panel table-panel">
+      <div class="panel-head">
+        <h2>Accounts</h2>
+        <p>Returned directly from the live API route.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Trades</th>
+              <th>Total P&amp;L</th>
+              <th>Average P&amp;L</th>
+            </tr>
+          </thead>
+          <tbody id="accounts-table"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
